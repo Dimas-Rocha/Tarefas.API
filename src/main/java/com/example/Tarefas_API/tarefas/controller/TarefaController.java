@@ -13,28 +13,34 @@ import java.util.Optional;
 @RequestMapping("/api/tarefas")
 @CrossOrigin("*")
 public class TarefaController {
+
     @Autowired
     private TarefaRepository tarefaRepository;
 
-    //CRIAR TAREFA
+    // CRIAR TAREFA
+    @PostMapping
     public Tarefa criarTarefa(@RequestBody Tarefa tarefa) {
         return tarefaRepository.save(tarefa);
     }
-    //CONSULTAR TODAS AS TAREFAS
+
+    // CONSULTAR TODAS AS TAREFAS
+    @GetMapping
     public List<Tarefa> getAllTarefas() {
         return tarefaRepository.findAll();
     }
 
-    //CONSULTAR TAREFA POR ID
-    public ResponseEntity<List<Tarefa>> getTarefasById(@PathVariable Long id) {
+    // CONSULTAR TAREFA POR ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Tarefa> getTarefaById(@PathVariable Long id) {
         Optional<Tarefa> tarefa = tarefaRepository.findById(id);
         return tarefa.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    //ATUALIZAR TAREFA
+
+    // ATUALIZAR TAREFA
     @PutMapping("/{id}")
-     public ResponseEntity<Tarefa> updateTarefa(@PathVariable Long id, @RequestBody Tarefa tarefaDetails) {
-        Optional<Tarefa> optionalTarefa = tarefaRepository.findBy(id);
+    public ResponseEntity<Tarefa> updateTarefa(@PathVariable Long id, @RequestBody Tarefa tarefaDetails) {
+        Optional<Tarefa> optionalTarefa = tarefaRepository.findById(id);
 
         if (optionalTarefa.isPresent()) {
             Tarefa tarefa = optionalTarefa.get();
@@ -42,19 +48,21 @@ public class TarefaController {
             tarefa.setResponsavel(tarefaDetails.getResponsavel());
             tarefa.setDataEntrega(tarefaDetails.getDataEntrega());
 
-            Tarefa updateTarefa = tarefaRepository.save(tarefa);
-            return ResponseEntity.ok(updateTarefa);
-        }else {
+            Tarefa updatedTarefa = tarefaRepository.save(tarefa);
+            return ResponseEntity.ok(updatedTarefa);
+        } else {
             return ResponseEntity.notFound().build();
         }
+    }
 
-        //REMOVER TAREFA
-         public ResponseEntity<?> deleteTarefa(@PathVariableLonhg id){
-            if (tarefaRepository.existsById(id)) {
-                tarefaRepository.deleteById(id);
-                return ResponseEntity.ok().build();
-            }else  {
-                return ResponseEntity.notFound().build();
+    // REMOVER TAREFA
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteTarefa(@PathVariable Long id) {
+        if (tarefaRepository.existsById(id)) {
+            tarefaRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
         }
-     }
+    }
 }
